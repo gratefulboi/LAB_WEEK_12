@@ -15,7 +15,7 @@ data class Movie(
     val overview: String? = null,
     val popularity: Float = 0f,
     @field:Json(name = "poster_path")
-    val posterPath: String? = null,
+    val poster_path: String? = null,
     @field:Json(name = "release_date")
     val releaseDate: String? = null,
     val title: String? = null,

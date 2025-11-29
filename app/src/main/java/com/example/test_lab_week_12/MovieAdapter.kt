@@ -1,5 +1,6 @@
 package com.example.test_lab_week_12
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,9 +45,11 @@ class MovieAdapter(private val clickListener: MovieClickListener) :
 
         fun bind(movie: Movie) {
             titleText.text = movie.title
+            Log.d("POSTER_TEST", "posterPath=${movie.poster_path}, backdropPath=${movie.backdrop_path}")
+
 
             Glide.with(itemView.context)
-                .load("$imageUrl${movie.posterPath}")
+                .load("$imageUrl${movie.poster_path}")
                 .placeholder(R.mipmap.ic_launcher)
                 .fitCenter()
                 .into(poster)
