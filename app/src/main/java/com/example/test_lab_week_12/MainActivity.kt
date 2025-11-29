@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                     // collect list movie dari StateFlow
                     movieViewModel.popularMovies.collect {
                         // add list movie ke adapter
-                        movies ->movieAdapter.addMovies(movies)
+                        movies ->movieAdapter.setMovies(movies)
                     }
                 }
                 launch {
