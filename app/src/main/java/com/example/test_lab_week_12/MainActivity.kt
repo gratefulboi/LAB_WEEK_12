@@ -4,11 +4,15 @@ import android.content.Intent
 import android.icu.util.Calendar
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import com.example.test_lab_week_12.model.Movie
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,22 +41,28 @@ class MainActivity : AppCompatActivity() {
             }
         ) [MovieViewModel::class.java]
 
-        movieViewModel.popularMovies.observe(this) { popularMovies ->
-            val currentYear = Calendar.getInstance().get(Calendar.YEAR).toString()
-
-            popularMovies
-                .filter { movie ->
-                    // aman dari null
-                    movie.releaseDate?.startsWith(currentYear) == true
+        // fetch movie dari API
+        // lifecycleScope adalah lifecycle aware coroutine scope
+        lifecycleScope.launch {
+            // repeatOnLifecycle is a lifecycle-aware coroutine builder
+            // Lifecycle.State.STARTED berarti coroutine akan berjalan jika activity started
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    // collect list movie dari StateFlow
+                    movieViewModel.popularMovies.collect {
+                        // add list movie ke adapter
+                        movies ->movieAdapter.addMovies(movies)
+                    }
                 }
-                .sortedByDescending { it.popularity }
-
-            movieAdapter.addMovies(popularMovies)
-        }
-
-        movieViewModel.error.observe(this) { error ->
-            if(error.isNotEmpty()) {
-                Snackbar.make(recyclerView, error, Snackbar.LENGTH_LONG).show()
+                launch {
+                    // collect error message dari StateFlow
+                    movieViewModel.error.collect { error ->
+                        // if an error occurs, show Snackbar with error message
+                        if(error.isNotEmpty()) Snackbar.make(
+                            recyclerView, error, Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                }
             }
         }
     }
